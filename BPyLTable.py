@@ -14,12 +14,13 @@ def getTable():
     teams = table.tbody.find_all('tr')
 
     tableDict = {}
-    for team in teams:
+    for i in range(len(teams)):
+        team = teams[i]
         # Get team name
         name = team.find(class_='table-column--main').a.string.replace('\n', '')
         # Get other team info
         teamInfo = (team.find_all('td'))[2:10]
-        pointsList = []
+        pointsList = [str(i)]
         for score in teamInfo:
             pointsList.append(score.string)
 
@@ -30,7 +31,9 @@ def getTable():
 
 
 def printTeamLine(name, infoList, width, centerVal):
-    print('|{:<{w}}{:>{w}}|'.format('{:<2d0}  {}'.format(infoList[0], name), w=width))
+    teamInfo = '{:<2} {}'.format(int(infoList[0]) + 1, name)
+    teamPoints = '{}  {}  {}   {}   {}  {}  {}  {} '.format(*infoList[1:])
+    print('|{:<20}{:>{w}}|'.format(teamInfo, teamPoints, w=width-20).center(centerVal))
 
 
 
@@ -39,20 +42,25 @@ def printTableLine(width, centerVal):
 
 
 
-def displayTableTop(width):
+def displayTableTop(width, column):
     # Get width of terminal so info can be printed in the center
-    column, rows = shutil.get_terminal_size(fallback=(80,24))
     printTableLine(width, column)
     print('|{:^{w}}|'.format('BARCLAYS PREMIER LEAGUE', w=width).center(column))
     printTableLine(width, column)
-    print('|{:<{w}}{:>{w}}|'.format('P  Team', 'GP  W  D  L  F  A  GD  Pts', w=width//2).center(column))
+    print('|{:<10}{:>{w}}|'.format('P  Team', 'GP  W   D   L   F   A   GD  Pts', w=width-10).center(column))
     printTableLine(width, column)
 
 
 def displayTeamAtPos(table, position):
+    column, rows = shutil.get_terminal_size(fallback=(80,24))
     # Display the team and team info of team in specified position 
-    displayTableTop(60)
-    # Get team name for dicionary index
+    displayTableTop(60, column)
+    # Find team from position
+    for team in table:
+        if table[team][0] == str(position):
+            printTeamLine(team, table[team], 60, column)            
+            printTableLine(60, column)
+            break
 
 
 @click.command()
@@ -66,8 +74,7 @@ def main(position, top6):
     if position == -1 and top6 == False:
         displayTable()
     elif position != -1:
-        print('in main')
-        displayTeamAtPos(leagueTable, position)
+        displayTeamAtPos(leagueTable, position - 1)
     elif top6:
         displayTop6()
 
