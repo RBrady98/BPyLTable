@@ -65,7 +65,7 @@ def displayTeamAtPos(table, position):
 
 @click.command()
 @click.option('--position', default=-1, help='Team at position')
-@click.option('--top6', is_flag=True)
+@click.option('--top6', is_flag=True, help='Display top 6 teams only')
 def main(position, top6):
     # Load bpl table into a dictionary
     leagueTable = getTable()
